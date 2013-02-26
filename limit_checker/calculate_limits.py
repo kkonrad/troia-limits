@@ -24,6 +24,8 @@ ASSIGNS_OBJECT_RATIO = 5
 exps = (3, 4, 5, 6)
 ASSIGNS_NUMS = [10 ** x for x in exps]
 
+ITERATIONS = 10
+
 
 class DataGenerator(object):
 
@@ -156,7 +158,7 @@ class NominalSimulation(Simulation):
         return ret_exectime(self.tc, self.tc.post_assigned_labels(assigns))
 
     def compute(self):
-        return ret_exectime(self.tc, self.tc.post_compute())
+        return ret_exectime(self.tc, self.tc.post_compute(ITERATIONS))
 
     def shutdown(self):
         self.tc.delete()
