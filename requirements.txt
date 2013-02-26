@@ -1,0 +1,4 @@
+-e git+https://github.com/kkonrad/troia-python-client.git#egg=troia_client
+numpy
+matplotlib
+
