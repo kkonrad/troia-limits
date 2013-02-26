@@ -19,7 +19,7 @@ def plot_datas(dimx, dimy, idx, fig, datas, attr):
     data = sorted([(x['NUM_ASSIGNS'], x[attr]) for x in datas])
     xs, ys = [map(lambda x: x[i], data) for i in (0, 1)]
     ax = fig.add_subplot(dimx, dimy, idx)
-    ax.plot(xs, ys)
+    ax.plot(xs, ys, marker='o')
     ax.set_xscale('log')
     ax.set_yscale('log')
     if datas:
