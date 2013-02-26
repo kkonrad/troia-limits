@@ -78,7 +78,7 @@ class NominalDataGenerator(DataGenerator):
     LABELS = ['correct', 'incorrect']
 
     def gen_init_data(self):
-        return ([
+        return ([[
             {"prior":0.5, "name": "correct", "misclassificationCost": [
                 {'categoryName': 'correct', 'value': 0},
                 {'categoryName': 'incorrect', 'value': 1}
@@ -86,7 +86,7 @@ class NominalDataGenerator(DataGenerator):
             {"prior":0.5, "name": "incorrect", "misclassificationCost": [
                 {'categoryName': 'correct', 'value': 1},
                 {'categoryName': 'incorrect', 'value': 0}
-            ]}
+            ]}]
             ], {})
 
     def rand_label(self):
@@ -146,19 +146,20 @@ class NominalSimulation(Simulation):
 
     def create(self):
         self.tc = TroiaClient(TROIA_ADDRESS)
-        self.tc.create()
+        init_args, init_kwargs = self.data_generator.gen_init_data()
+        self.tc.create(*init_args, typee=self.algorithm, **init_kwargs)
 
     def _upload_golds(self, golds):
-        pass
+        return ret_exectime(self.tc, self.tc.post_gold_data(golds))
 
     def _upload_assigns_package(self, assigns):
-        pass
+        return ret_exectime(self.tc, self.tc.post_assigned_labels(assigns))
 
     def compute(self):
-        pass
+        return ret_exectime(self.tc, self.tc.post_compute())
 
     def shutdown(self):
-        pass
+        self.tc.delete()
 
 
 class ContSimulation(Simulation):
@@ -188,8 +189,13 @@ def get_configs(num_objects):
 
     return [{
         ALGORITHM: 'GALC',
-        DATAGENERATOR: cdg,
         SIMULATION: ContSimulation(cdg),
+    }, {
+        ALGORITHM: 'BDS',
+        SIMULATION: NominalSimulation('batch', ndg_bds),
+    }, {
+        ALGORITHM: 'IDS',
+        SIMULATION: NominalSimulation('incremental', ndg_ids),
     }]
 
 
