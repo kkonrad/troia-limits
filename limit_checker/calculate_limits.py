@@ -2,7 +2,13 @@ import random
 import sys
 import json
 import logging
-logging.basicConfig(filename='calculating_limits.log',level=logging.DEBUG)
+
+
+log = logging.getLogger("limit_calculating")
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+log.addHandler(ch)
+log.setLevel(logging.INFO)
 
 from troia_cont_client.contClient import TroiaContClient
 from troia_client.client import TroiaClient
@@ -15,7 +21,7 @@ SIMULATION = "simulation"
 DATAGENERATOR = "data_generator"
 
 ASSIGNS_OBJECT_RATIO = 5
-exps = (3, 4)#4, 5, 6)
+exps = (3, )#4)#4, 5, 6)
 ASSIGNS_NUMS = [10 ** x for x in exps]
 
 
@@ -188,10 +194,15 @@ def get_configs(num_objects):
 
 
 def work_on(simulation):
+    log.info("CREATING")
     simulation.create()
+    log.info("PREPARING")
     simulation.prepare()
+    log.info("ASSIGNS UPLOADING")
     upload_time = simulation.upload_assigns()
+    log.info("COMPUTING")
     compute_time = simulation.compute()
+    log.info("SHUTING DOWN")
     simulation.shutdown()
     return {
             "UPLOAD": upload_time,
@@ -215,9 +226,11 @@ def main(args):
     for num_assigns in ASSIGNS_NUMS:
         configs = get_configs(num_assigns)
         for config in configs:
-
+            alg = config[ALGORITHM]
+            log.info("STARTED: %s %d", alg, num_assigns)
             res = work_on(config[SIMULATION])
-            save_results(res, config[ALGORITHM], num_assigns)
+            save_results(res, alg, num_assigns)
+            log.info("DONE: %s %d", alg, num_assigns)
 
 
 if __name__ == '__main__':
