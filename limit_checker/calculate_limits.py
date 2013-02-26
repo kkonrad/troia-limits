@@ -21,7 +21,7 @@ SIMULATION = "simulation"
 DATAGENERATOR = "data_generator"
 
 ASSIGNS_OBJECT_RATIO = 5
-exps = (3, )#4)#4, 5, 6)
+exps = (3, 4, 5, 6)
 ASSIGNS_NUMS = [10 ** x for x in exps]
 
 
