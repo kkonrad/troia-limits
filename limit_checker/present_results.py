@@ -15,10 +15,9 @@ def key_gen(strr):
     return lambda x: x[strr]
 
 
-def plot_datas(dimx, dimy, idx, fig, datas, attr):
+def plot_datas(ax, datas, attr):
     data = sorted([(x['NUM_ASSIGNS'], x[attr]) for x in datas])
     xs, ys = [map(lambda x: x[i], data) for i in (0, 1)]
-    ax = fig.add_subplot(dimx, dimy, idx)
     ax.plot(xs, ys, marker='o')
     ax.set_xscale('log')
     ax.set_yscale('log')
@@ -26,22 +25,20 @@ def plot_datas(dimx, dimy, idx, fig, datas, attr):
         ax.set_title("%s %s" % (datas[0]["ALGORITHM"], attr))
 
 
-def gen_subplots(rows, row, fig, datas):
-    dimx, dimy = rows, COLS
-    idx = row * dimy + 1
+def gen_subplots(axs, datas):
     datas = list(datas)
-    for i, attr in enumerate(("UPLOAD", "COMPUTE")):
-        plot_datas(dimx, dimy, idx + i, fig, datas, attr)
+    for ax, attr in zip(axs, ("UPLOAD", "COMPUTE")):
+        plot_datas(ax, datas, attr)
 
 
 def generate_chart(data):
     k_alg = key_gen("ALGORITHM")
     data.sort(key=k_alg)
     grouped = [(k, list(l)) for k, l in groupby(data, k_alg)]
-    fig = plt.figure()
     rows, cols = len(grouped), COLS
-    for i, (alg, datas) in enumerate(grouped):
-        gen_subplots(rows, i, fig, datas)
+    fig, axs = plt.subplots(rows, cols, sharex=True, sharey=True)
+    for ax_row, (alg, datas) in zip(axs, grouped):
+        gen_subplots(ax_row, datas)
     fig.tight_layout()
     fig.savefig("timing_algorithms.png")
 
