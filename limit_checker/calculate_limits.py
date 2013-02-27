@@ -22,7 +22,8 @@ DATAGENERATOR = "data_generator"
 
 ASSIGNS_OBJECT_RATIO = 5
 exps = (3, 4, 5, 6)
-ASSIGNS_NUMS = [10 ** x for x in exps]
+prefs = [1, 2, 5]
+ASSIGNS_NUMS = [pref * (10 ** expp) for expp in exps for pref in prefs]
 
 ITERATIONS = 10
 
