@@ -36,7 +36,7 @@ def generate_chart(data):
     data.sort(key=k_alg)
     grouped = [(k, list(l)) for k, l in groupby(data, k_alg)]
     rows, cols = len(grouped), COLS
-    fig, axs = plt.subplots(rows, cols, sharex=True)
+    fig, axs = plt.subplots(rows, cols, sharex=True, figsize=(10, 8))
     for ax_row, (alg, datas) in zip(axs, grouped):
         gen_subplots(ax_row, datas)
     fig.tight_layout()
