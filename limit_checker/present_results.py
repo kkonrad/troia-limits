@@ -8,7 +8,7 @@ from itertools import groupby
 import matplotlib.pyplot as plt
 
 
-COLS = 2
+COLS = 3
 
 
 def key_gen(strr):
@@ -27,7 +27,7 @@ def plot_datas(ax, datas, attr):
 
 def gen_subplots(axs, datas):
     datas = list(datas)
-    for ax, attr in zip(axs, ("UPLOAD", "COMPUTE")):
+    for ax, attr in zip(axs, ("UPLOAD", "COMPUTE", "UPL+COMP")):
         plot_datas(ax, datas, attr)
 
 
@@ -49,7 +49,9 @@ def collect_files(folder):
 
 def load_data(fname):
     with open(fname, 'r') as F:
-        return json.load(F)
+        d = json.load(F)
+        d["UPL+COMP"] = d["UPLOAD"] + d["COMPUTE"]
+        return d
 
 
 def main(args):
