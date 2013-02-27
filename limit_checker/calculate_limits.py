@@ -14,7 +14,7 @@ from troia_cont_client.contClient import TroiaContClient
 from troia_client.client import TroiaClient
 
 ASSIGN_PACKAGE_SIZE = 10000
-TROIA_ADDRESS = 'http://localhost:8080/troia-server-0.8'
+TROIA_ADDRESS = 'http://localhost:8080/troia-server-1.0'
 
 ALGORITHM = "algorithm"
 SIMULATION = "simulation"
@@ -136,6 +136,9 @@ class Simulation(object):
     def shutdown(self):
         pass
 
+    def memory_usage(self):
+        return self.tc.status()['result']['memory']['used']
+
 
 def ret_exectime(tc, resp):
     return tc.await_completion(resp)["executionTime"]
@@ -204,19 +207,21 @@ def get_configs(num_objects):
 
 def work_on(simulation):
     log.info("CREATING")
+    ret = {}
     simulation.create()
+    ret["MEM_BEFORE"] = simulation.memory_usage()
     log.info("PREPARING")
     simulation.prepare()
+    ret["MEM_INIT"] = simulation.memory_usage()
     log.info("ASSIGNS UPLOADING")
-    upload_time = simulation.upload_assigns()
+    ret["UPLOAD"] = simulation.upload_assigns()
+    ret["MEM_AFTER_UPLOAD"] = simulation.memory_usage()
     log.info("COMPUTING")
-    compute_time = simulation.compute()
+    ret["COMPUTE"] = simulation.compute()
+    ret["MEM_AFTER_COMPUTE"] = simulation.memory_usage()
     log.info("SHUTING DOWN")
     simulation.shutdown()
-    return {
-            "UPLOAD": upload_time,
-            "COMPUTE": compute_time,
-        }
+    return ret
 
 
 def save_results(sim_results, algorithm, num_assigns):

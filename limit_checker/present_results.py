@@ -7,7 +7,7 @@ from itertools import groupby
 
 import matplotlib.pyplot as plt
 
-COLUMNS = ("UPLOAD", "COMPUTE", "UPL+COMP")
+COLUMNS = ("UPLOAD", "COMPUTE", "UPL+COMP", "MEM_USAGE")
 COLS = len(COLUMNS)
 
 
@@ -36,7 +36,7 @@ def generate_chart(data):
     data.sort(key=k_alg)
     grouped = [(k, list(l)) for k, l in groupby(data, k_alg)]
     rows, cols = len(grouped), COLS
-    fig, axs = plt.subplots(rows, cols, sharex=True, sharey=True)
+    fig, axs = plt.subplots(rows, cols, sharex=True)
     for ax_row, (alg, datas) in zip(axs, grouped):
         gen_subplots(ax_row, datas)
     fig.tight_layout()
@@ -54,6 +54,7 @@ def load_data(fname):
 
 def extend_data(d):
     d["UPL+COMP"] = d["UPLOAD"] + d["COMPUTE"]
+    d["MEM_USAGE"] = d["MEM_AFTER_COMPUTE"] / (10. ** 6)
     return d
 
 
