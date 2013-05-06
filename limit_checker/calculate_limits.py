@@ -10,11 +10,11 @@ ch.setLevel(logging.INFO)
 log.addHandler(ch)
 log.setLevel(logging.INFO)
 
-from troia_cont_client.contClient import TroiaContClient
-from troia_client.client import TroiaClient
+from client.galc import TroiaContClient
+from client.gal import TroiaClient
 
 ASSIGN_PACKAGE_SIZE = 10000
-TROIA_ADDRESS = 'http://localhost:8080/troia-server-1.0'
+TROIA_ADDRESS = 'http://localhost:8080/service-1.1'
 
 ALGORITHM = "algorithm"
 SIMULATION = "simulation"
@@ -81,16 +81,11 @@ class NominalDataGenerator(DataGenerator):
     LABELS = ['correct', 'incorrect']
 
     def gen_init_data(self):
-        return ([[
-            {"prior":0.5, "name": "correct", "misclassificationCost": [
-                {'categoryName': 'correct', 'value': 0},
-                {'categoryName': 'incorrect', 'value': 1}
-            ]},
-            {"prior":0.5, "name": "incorrect", "misclassificationCost": [
-                {'categoryName': 'correct', 'value': 1},
-                {'categoryName': 'incorrect', 'value': 0}
-            ]}]
-            ], {})
+        return [self.LABELS,
+        {'categoryPriors': [{"categoryName": "correct", "value": 0.5}, {"categoryName": "incorrect", "value": 0.5}],
+         'costMatrix': [{"from": "correct", "to": "incorrect", "value": 1.0}, {"from": "correct", "to": "correct", "value": 0.0},
+               {"from": "incorrect", "to": "correct", "value": 1.0}, {"from": "incorrect", "to": "incorrect", "value": 0.0}],
+        'iterations': ITERATIONS}]
 
     def rand_label(self):
         return random.choice(self.LABELS)
@@ -152,8 +147,8 @@ class NominalSimulation(Simulation):
 
     def create(self):
         self.tc = TroiaClient(TROIA_ADDRESS)
-        init_args, init_kwargs = self.data_generator.gen_init_data()
-        self.tc.create(*init_args, typee=self.algorithm, **init_kwargs)
+        categories, init_kwargs = self.data_generator.gen_init_data()
+        self.tc.create(categories, algorithm=self.algorithm, **init_kwargs)
 
     def _upload_golds(self, golds):
         return ret_exectime(self.tc, self.tc.post_gold_data(golds))
@@ -162,7 +157,7 @@ class NominalSimulation(Simulation):
         return ret_exectime(self.tc, self.tc.post_assigned_labels(assigns))
 
     def compute(self):
-        return ret_exectime(self.tc, self.tc.post_compute(ITERATIONS))
+        return ret_exectime(self.tc, self.tc.post_compute())
 
     def shutdown(self):
         self.tc.delete()
@@ -172,7 +167,7 @@ class ContSimulation(Simulation):
 
     def create(self):
         self.tc = TroiaContClient(TROIA_ADDRESS)
-        self.tc.createNewJob()
+        self.tc.create()
 
     def _upload_golds(self, golds):
         alt_golds = ((obj, val, zeta) for obj, (val, zeta) in golds)
@@ -198,11 +193,12 @@ def get_configs(num_objects):
         SIMULATION: ContSimulation(cdg),
     }, {
         ALGORITHM: 'BDS',
-        SIMULATION: NominalSimulation('batch', ndg_bds),
+        SIMULATION: NominalSimulation('BDS', ndg_bds),
     }, {
         ALGORITHM: 'IDS',
-        SIMULATION: NominalSimulation('incremental', ndg_ids),
-    }]
+        SIMULATION: NominalSimulation('IDS', ndg_ids),
+    }
+    ]
 
 
 def work_on(simulation):
