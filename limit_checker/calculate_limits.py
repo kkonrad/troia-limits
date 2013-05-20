@@ -14,7 +14,7 @@ from client.galc import TroiaContClient
 from client.gal import TroiaClient
 
 ASSIGN_PACKAGE_SIZE = 10000
-TROIA_ADDRESS = 'http://localhost:8080/service-1.1'
+TROIA_ADDRESS = 'http://localhost:8080/service'
 
 ALGORITHM = "algorithm"
 SIMULATION = "simulation"
