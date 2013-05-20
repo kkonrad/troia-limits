@@ -3,13 +3,6 @@ import requests
 import csv
 import sys
 
-log = logging.getLogger("storage_performance")
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-log.addHandler(ch)
-log.setLevel(logging.INFO)
-
-
 from calculate_limits import get_configs, save_results, work_on, ALGORITHM, SIMULATION, TROIA_ADDRESS
 from client.galc import TroiaContClient
 from client.gal import TroiaClient
@@ -25,20 +18,19 @@ def main(args):
         results_writer = csv.writer(csv_file, delimiter='\t')
         results_writer.writerow(["{} assigns".format(ASSIGNS_NUM)] + [config[ALGORITHM] for config in configs])
         for js in JOB_STORAGES:
-            log.info("--" + js)
+            print "JS:", js
             requests.post("{}/config".format(TROIA_ADDRESS), data={'JOBS_STORAGE': js})
             requests.post("{}/config/resetDB".format(TROIA_ADDRESS))
             values = [js]
             for config in configs:
                 times = []
+                print "{:<5}".format(config[ALGORITHM]),
                 for i in xrange(TRIALS):
-                    alg = config[ALGORITHM]
-                    log.info("STARTED: %s", alg)
                     res = work_on(config[SIMULATION])
                     computation_time = res['COMPUTE'] + res['UPLOAD']
-                    log.info("COMPUTATION TIME: %f", computation_time)
-                    log.info("DONE: %s", alg)
                     times.append(computation_time)
+                    print "{:.2f}".format(computation_time),
+                print
                 values.append(sum(sorted(times)[1:-1])/(TRIALS-2))
             results_writer.writerow(values)
 

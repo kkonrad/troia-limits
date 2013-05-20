@@ -2,17 +2,10 @@ import random
 import sys
 import json
 import logging
-
-
-log = logging.getLogger("limit_calculating")
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-log.addHandler(ch)
-log.setLevel(logging.INFO)
-
 from client.galc import TroiaContClient
 from client.gal import TroiaClient
 
+log = logging.getLogger("limit_calculating")
 ASSIGN_PACKAGE_SIZE = 10000
 TROIA_ADDRESS = 'http://localhost:8080/service'
 
@@ -231,8 +224,14 @@ def save_results(sim_results, algorithm, num_assigns):
     print res
     return res
 
+def set_logger():
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    log.addHandler(ch)
+    log.setLevel(logging.INFO)
 
 def main(args):
+    set_logger()
     for num_assigns in ASSIGNS_NUMS:
         configs = get_configs(num_assigns)
         for config in configs:
