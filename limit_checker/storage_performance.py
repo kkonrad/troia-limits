@@ -30,6 +30,7 @@ def main(args):
                     computation_time = res['COMPUTE'] + res['UPLOAD']
                     times.append(computation_time)
                     print "{:.2f}".format(computation_time),
+                    sys.stdout.flush()
                 print
                 values.append(sum(sorted(times)[1:-1])/(TRIALS-2))
             results_writer.writerow(values)
